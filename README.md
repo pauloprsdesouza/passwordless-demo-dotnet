@@ -1,1 +1,1 @@
-# Open Agenda
+# Passwordless Demo Application
