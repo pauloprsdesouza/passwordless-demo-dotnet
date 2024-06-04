@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Schedy Authenticator Api
+
+Parameters:
+
+  Environment:
+    Type: String
+    Description: Set the deployment environment.
+    AllowedValues:
+      - Development
+      - Staging
+      - Production
+
+  JwtSecret:
+    Type: String
+    Description: Set secret token JWT
+
+Mappings:
+  StageNameMap:
+    Development:
+      StageName: dev
+    Staging:
+      StageName: stg
+    Production:
+      StageName: prod
+  EnvironmentToPathBaseMap:
+    Development:
+      PathBase: /development
+    Staging:
+      PathBase: /staging
+    Production:
+      PathBase: /
+
+Globals:
+  Api:
+    OpenApiVersion: 3.0.1
+
+Resources:
+  Lambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: passwordless-demo-api
+      Handler: PasswordlessDemo.Api::PasswordlessDemo.Api.LambdaEntryPoint::FunctionHandlerAsync
+      Runtime: dotnet8
+      MemorySize: 1024
+      Timeout: 30
+      Environment:
+        Variables:
+          ASPNETCORE_ENVIRONMENT: !Ref Environment
+          ASPNETCORE_JWT__Secret: !Ref JwtSecret
+          ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS: true
+          ASPNETCORE_PATH_BASE: !FindInMap [EnvironmentToPathBaseMap, !Ref Environment, PathBase]
+          ASPNETCORE_Logging__IncludeLogLevel: true
+          ASPNETCORE_Logging__IncludeCategory: true
+          ASPNETCORE_Logging__IncludeNewline: true
+          ASPNETCORE_Logging__IncludeException: true
+          ASPNETCORE_Logging__IncludeEventId: false
+          ASPNETCORE_Logging__IncludeScopes: false
+          ASPNETCORE_Logging__LogLevel__Default: Information
+          ASPNETCORE_Logging__LogLevel__Microsoft: Warning
+          ASPNETCORE_Logging__LogLevel__System: Warning
+      Events:
+        AnyHttpRequest:
+          Type: Api
+          Properties:
+            Path: "/{proxy+}"
+            Method: ANY
+            RestApiId: !Ref ApiGateway
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/AppLambdaExecutionRole
+      Tags:
+        Name: passwordless-demo-api:Lambda
+
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !FindInMap [StageNameMap, !Ref Environment, StageName]
+      Name: passwordless-demo
+      Tags:
+        Name: passwordless-demo:ApiGateway
+
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    Properties:
+      TableName: passwordless-demo
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSIPK
+          AttributeType: S
+        - AttributeName: GSISK
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+      - IndexName: GSIIndex
+        KeySchema:
+        - AttributeName: GSIPK
+          KeyType: HASH
+        - AttributeName: GSISK
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+      Tags:
+        - Key: Name
+          Value: passwordless-demo:DynamoDB
