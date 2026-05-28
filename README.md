@@ -1,23 +1,31 @@
-# Passwordless Demo (.NET)
+# Passwordless Demo Dotnet
 
-Reference implementation of passwordless authentication flows in a .NET backend.
+[![License](https://img.shields.io/github/license/pauloprsdesouza/passwordless-demo-dotnet)](./LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/pauloprsdesouza/passwordless-demo-dotnet)](https://github.com/pauloprsdesouza/passwordless-demo-dotnet/commits)
+[![Top Language](https://img.shields.io/github/languages/top/pauloprsdesouza/passwordless-demo-dotnet)](https://github.com/pauloprsdesouza/passwordless-demo-dotnet)
 
-## What this repository contains
-- Backend authentication flow examples
-- API code and support scripts
+## Overview
+Reference .NET implementation for passwordless authentication flows.
 
-## Tech stack
+## Tech Stack
+- C#
 - C# / .NET
-- Authentication / Identity patterns
 
-## Project structure
-- `src/` - application source code
-- `tools/` - helper scripts
+## Repository Structure
+- `src/` - main source code
+- `tools/` - support scripts/utilities
 
-## Getting started
+## Quick Start
 1. Install a compatible .NET SDK.
-2. Restore dependencies in `src/`.
-3. Build and run the project.
+2. Restore dependencies from the solution/project.
+3. Build and run locally.
 
-## Notes
-This repository is intended as a demo/reference and should be hardened before production use.
+## Validation
+- Run local build and tests where available.
+- Validate main workflows/endpoints before opening pull requests.
+
+## Contributing
+See `CONTRIBUTING.md` for contribution and PR guidelines.
+
+## Status
+Actively maintained by Paulo Roberto de Souza.
